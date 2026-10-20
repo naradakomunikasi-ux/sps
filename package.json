@@ -1,0 +1,15 @@
+{
+  "name": "sps-platform",
+  "private": true,
+  "packageManager": "npm@10.9.2",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "check:structure": "node scripts/verify-structure.mjs",
+    "test:contracts": "node scripts/test-security.mjs",
+    "typecheck": "npm run typecheck -w @sps/api && npm run typecheck -w @sps/web",
+    "build": "npm run build -w @sps/api && npm run build -w @sps/web",
+    "check:install": "node scripts/verify-install.mjs"
+  }
+}
