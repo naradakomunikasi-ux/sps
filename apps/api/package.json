@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "nest start",
+    "start": "node dist/main.js",
     "build": "nest build",
     "typecheck": "tsc --noEmit"
   },
@@ -20,5 +20,8 @@
     "typescript": "^5.9.0",
     "@types/node": "^22.0.0",
     "@types/pg": "^8.11.0"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
