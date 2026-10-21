@@ -10,6 +10,11 @@
     "test:contracts": "node scripts/test-security.mjs",
     "typecheck": "npm run typecheck -w @sps/api && npm run typecheck -w @sps/web",
     "build": "npm run build -w @sps/api && npm run build -w @sps/web",
-    "check:install": "node scripts/verify-install.mjs"
+    "check:install": "node scripts/verify-install.mjs",
+    "start": "npm run start -w @sps/api",
+    "check:hostinger": "node scripts/check-hostinger-contract.mjs"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
