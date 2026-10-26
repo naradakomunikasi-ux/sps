@@ -19,7 +19,8 @@
     "test:regression": "npm run test:cp003 && npm run test:cp004 && npm run test:cp005 && node scripts/test-cp006.mjs && node scripts/test-cp007.mjs && node scripts/test-cp009.mjs && node scripts/test-cp010.mjs && npm run test:cp011 && node scripts/test-cp012.mjs && npm run test:cp013",
     "test:cp022": "node --experimental-strip-types scripts/test-cp022.mjs",
     "start": "npm run start -w @sps/api",
-    "check:hostinger": "node scripts/check-hostinger-contract.mjs"
+    "check:hostinger": "node scripts/check-hostinger-contract.mjs",
+    "db:mysql:verify": "node db/mysql/verify-connection.mjs"
   },
   "engines": {
     "node": ">=20"
