@@ -10,3 +10,5 @@ This is a **staging-only candidate** schema for MySQL 8 / InnoDB, not an asserti
 6. Reconcile SQL constraints, role scope, audit columns and approval workflow before data migration or production.
 
 Security: do not commit real credentials or use remote root DB credentials. Back up any target data before import.
+
+After deployment dependencies are installed, run `npm run db:mysql:verify` with DB_* environment variables. This command reads schema only and never creates tables.
