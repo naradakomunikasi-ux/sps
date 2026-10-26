@@ -3,7 +3,8 @@ import type {Role} from './security';
 export interface RoleSwitchDb {connect():Promise<{query<T=unknown>(sql:string,params?:readonly unknown[]):Promise<{rows:T[]}>;release():void}>}
 const roles:ReadonlySet<string>=new Set(['PARTICIPANT','FACILITATOR','PTM_COORDINATOR','ADMIN','DIRECTOR']);
 export class RoleSwitchDenied extends Error {constructor(){super('Role context change denied');this.name='RoleSwitchDenied'}}
-/** Server-side transaction validates a live bearer session and an enabled role assignment. */
+/** Only the session bearer may switch to a role already assigned and enabled on the server.
+ * The update and audit event share a transaction. No requester-supplied personId is trusted. */
 export async function changeOwnActiveRole(pool:RoleSwitchDb,token:string,requestedRole:Role,correlationId:string,now:Date=new Date()):Promise<{activeRole:Role}> {
  if(!/^[A-Za-z0-9_-]{32,128}$/.test(token)||!roles.has(requestedRole)||!/^[A-Za-z0-9_-]{8,128}$/.test(correlationId)||!Number.isFinite(now.getTime()))throw new RoleSwitchDenied();
  const hash=createHash('sha256').update(token).digest('hex');

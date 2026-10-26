@@ -1,27 +1,29 @@
 import assert from 'node:assert/strict';
 import { authorize } from '../apps/api/src/security.ts';
-const p='11111111-1111-4111-8111-111111111111', q='22222222-2222-4222-8222-222222222222';
-const b='33333333-3333-4333-8333-333333333333', x='44444444-4444-4444-8444-444444444444';
-const user={personId:p,activeRole:'PARTICIPANT',batchIds:[b]};
+const person='11111111-1111-4111-8111-111111111111';
+const other='22222222-2222-4222-8222-222222222222';
+const batch='33333333-3333-4333-8333-333333333333';
+const alien='44444444-4444-4444-8444-444444444444';
+const student={personId:person,activeRole:'PARTICIPANT',batchIds:[batch]};
 const cases=[
-['null session',null,'profile.read.self',{personId:p},false],
-['unknown permission',user,'user.admin',{personId:p},false],
-['own profile',user,'profile.read.self',{personId:p},true],
-['cross person',user,'profile.read.self',{personId:q},false],
-['missing person ID',user,'profile.read.self',{},false],
-['own enrollment',user,'enrollment.read.self',{personId:p},true],
-['other enrollment',user,'enrollment.read.self',{personId:q},false],
-['assigned session',user,'session.read.assigned',{batchId:b},true],
-['cross batch',user,'session.read.assigned',{batchId:x},false],
-['missing batch',user,'session.read.assigned',{},false],
-['role mismatch',user,'participant.read.scoped',{batchId:b},false],
-['admin own batch',{...user,activeRole:'ADMIN'},'participant.read.scoped',{batchId:b},true],
-['admin other batch',{...user,activeRole:'ADMIN'},'participant.read.scoped',{batchId:x},false],
-['unknown role',{...user,activeRole:'SUPER_ADMIN'},'profile.read.self',{personId:p},false],
-['empty scope',{...user,batchIds:[]},'session.read.assigned',{batchId:b},false],
-['empty principal',{...user,personId:''},'profile.read.self',{personId:''},false],
-['facilitator denied enrollment',{...user,activeRole:'FACILITATOR'},'enrollment.read.self',{personId:p},false],
-['director denied participant read',{...user,activeRole:'DIRECTOR'},'participant.read.scoped',{batchId:b},false]
+ ['deny null session',null,'profile.read.self',{personId:person},false],
+ ['deny unknown permission',student,'user.admin',{personId:person},false],
+ ['allow own profile',student,'profile.read.self',{personId:person},true],
+ ['deny other person',student,'profile.read.self',{personId:other},false],
+ ['deny missing person ID',student,'profile.read.self',{},false],
+ ['allow own enrollment',student,'enrollment.read.self',{personId:person},true],
+ ['deny other enrollment',student,'enrollment.read.self',{personId:other},false],
+ ['allow assigned session',student,'session.read.assigned',{batchId:batch},true],
+ ['deny cross batch',student,'session.read.assigned',{batchId:alien},false],
+ ['deny missing batch',student,'session.read.assigned',{},false],
+ ['deny wrong role',student,'participant.read.scoped',{batchId:batch},false],
+ ['allow admin own batch',{...student,activeRole:'ADMIN'},'participant.read.scoped',{batchId:batch},true],
+ ['deny admin other batch',{...student,activeRole:'ADMIN'},'participant.read.scoped',{batchId:alien},false],
+ ['deny role injection',{...student,activeRole:'SUPER_ADMIN'},'profile.read.self',{personId:person},false],
+ ['deny empty scope',{...student,batchIds:[]},'session.read.assigned',{batchId:batch},false],
+ ['deny null person',{...student,personId:''},'profile.read.self',{personId:''},false],
+ ['deny facilitator enrollment',{...student,activeRole:'FACILITATOR'},'enrollment.read.self',{personId:person},false],
+ ['deny director participant read',{...student,activeRole:'DIRECTOR'},'participant.read.scoped',{batchId:batch},false],
 ];
-for(const [name,ctx,permission,resource,expected] of cases) assert.equal(authorize(ctx,permission,resource),expected,name);
-console.log('PASS 18/18 actual authorize() assertions; no HTTP runtime claim');
+for(const [name,ctx,permission,resource,expect] of cases){ assert.equal(authorize(ctx,permission,resource),expect,name); }
+console.log(`PASS ${cases.length}/${cases.length} behavior assertions; Node TS stripping; no mocks of authorize()`);

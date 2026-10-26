@@ -2,6 +2,7 @@ export type Role = "PARTICIPANT" | "FACILITATOR" | "PTM_COORDINATOR" | "ADMIN" |
 export type Permission = "profile.read.self" | "enrollment.read.self" | "session.read.assigned" | "ptm.read.assigned" | "ptm.read.scoped" | "participant.read.scoped" | "enrollment.manage.scoped" | "report.read.scoped";
 export interface Context { personId: string; activeRole: Role; batchIds: string[]; }
 export interface Resource { personId?: string; batchId?: string; }
+/** Canonical explicit permission bundles. Every permission has a resource-scope rule. */
 export const permissionBundles: Readonly<Record<Role, readonly Permission[]>> = Object.freeze({
  PARTICIPANT: Object.freeze(["profile.read.self", "enrollment.read.self", "session.read.assigned"]),
  FACILITATOR: Object.freeze(["ptm.read.assigned"]),

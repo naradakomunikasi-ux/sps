@@ -1,0 +1,34 @@
+import assert from 'node:assert/strict';
+import { createHmac } from 'node:crypto';
+import { verifyZoomUrlValidation } from '../apps/api/src/zoom-url-validation.ts';
+import { receiveZoomWebhook } from '../apps/api/src/zoom-webhook-http.ts';
+let count=0;function check(value,message){assert.ok(value,message);count++}
+const secret='local-testing-secret-token-not-prod',now=1800000000;
+const token='challenge-token-123';const rawBody=Buffer.from(JSON.stringify({event:'endpoint.url_validation',payload:{plainToken:token}}));
+function signed(body=rawBody,ts=String(now)){return 'v0='+createHmac('sha256',secret).update(Buffer.concat([Buffer.from(`v0:${ts}:`),body])).digest('hex')}
+const input={rawBody,signature:signed(),timestamp:String(now),secret,nowSeconds:now};
+const expected=createHmac('sha256',secret).update(token).digest('hex');
+check(verifyZoomUrlValidation(input)?.encryptedToken===expected,'Zoom provider challenge uses HMAC SHA256');
+check(verifyZoomUrlValidation(input)?.plainToken===token,'original plainToken returned');
+check(verifyZoomUrlValidation({...input,signature:signed().slice(0,-1)+'0'})===null,'invalid signature rejected');
+check(verifyZoomUrlValidation({...input,rawBody:Buffer.from('{}')})===null,'body tampering rejected');
+check(verifyZoomUrlValidation({...input,nowSeconds:now+301})===null,'stale timestamp rejected');
+check(verifyZoomUrlValidation({...input,timestamp:'abc'})===null,'invalid timestamp rejected');
+check(verifyZoomUrlValidation({...input,signature:null})===null,'missing signature rejected');
+check(verifyZoomUrlValidation({...input,secret:'short'})===null,'bad secret rejected');
+check(verifyZoomUrlValidation({...input,rawBody:Buffer.alloc(5000)})===null,'oversized challenge rejected');
+check(verifyZoomUrlValidation({...input,rawBody:Buffer.from('{bad')})===null,'malformed JSON rejected');
+const noToken=Buffer.from(JSON.stringify({event:'endpoint.url_validation',payload:{}}));
+check(verifyZoomUrlValidation({...input,rawBody:noToken,signature:signed(noToken)})===null,'missing plain token rejected');
+const wrongEvent=Buffer.from(JSON.stringify({event:'meeting.ended',payload:{plainToken:token}}));
+check(verifyZoomUrlValidation({...input,rawBody:wrongEvent,signature:signed(wrongEvent)})===null,'non challenge not classified as validation');
+let calls=0;const pool={connect:async()=>{calls++;throw Error('challenge should not use DB')}};
+const response=await receiveZoomWebhook({pool,...input});
+check(response.status===200,'challenge returns HTTP 200');
+check(response.body.plainToken===token,'adapter returns challenge token');
+check(response.body.encryptedToken===expected,'adapter returns encrypted token');
+check(calls===0,'challenge requires no database calls');
+const bad=await receiveZoomWebhook({pool,...input,signature:'v0='+('f'.repeat(64))});
+check(bad.status===401,'invalid signature does not produce challenge');
+check(calls===0,'invalid signature never opens database');
+console.log(`CP117-124 ${count}/${count} PASS`);

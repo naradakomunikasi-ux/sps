@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const c=JSON.parse(readFileSync(new URL('../docs/OPENAPI_CP052_DRAFT.json',import.meta.url)));
+const main=readFileSync(new URL('../apps/api/src/main.ts',import.meta.url),'utf8');
+const request=readFileSync(new URL('../apps/api/src/role-context-request.ts',import.meta.url),'utf8');
+assert.equal(c.openapi,'3.1.0');
+assert.deepEqual(Object.keys(c.paths).sort(),['/health','/v1/me/active-role','/v1/me/enrollments','/v1/me/profile'].sort());
+for(const op of ['profile','active-role','enrollments'])assert.ok(main.includes("'"+op+"'"),'Missing route '+op);
+for(const role of c.paths['/v1/me/active-role'].post.requestBody.content['application/json'].schema.properties.role.enum)assert.ok(request.includes("'"+role+"'"));
+assert.equal(c.paths['/v1/me/active-role'].post.requestBody.content['application/json'].schema.additionalProperties,false);
+assert.ok(main.includes('parseRoleContextRequest('));
+assert.ok(main.includes('changeOwnActiveRole('));
+for(const key of ['/v1/me/profile','/v1/me/enrollments','/v1/me/active-role'])assert.deepEqual(c.paths[key][Object.keys(c.paths[key])[0]].security,[{bearerAuth:[]}]);
+console.log('PASS CP052 static OpenAPI/source alignment (NOT semantic approval nor HTTP tests)');

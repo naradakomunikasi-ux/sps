@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import {summarizeMySps} from '../apps/web/app/my-sps/view-model.ts';
+let n=0;function check(name,fn){fn();n++;console.log('PASS',name)}
+const now=Date.parse('2026-10-26T00:00:00Z');
+const data=[{id:'a',batch_title:'Kelas A',status:'ACTIVE',sessions:[{id:'late',title:'Sesi dua',status:'PUBLISHED',starts_at:'2026-10-28T02:00:00Z'},{id:'early',title:'Sesi satu',status:'PUBLISHED',starts_at:'2026-10-27T02:00:00Z'},{id:'draft',title:'Rahasia',status:'DRAFT',starts_at:'2026-10-26T04:00:00Z'},{id:'past',title:'Kemarin',status:'PUBLISHED',starts_at:'2026-10-25T02:00:00Z'}]},{id:'b',batch_title:'Kelas Lama',status:'COMPLETED',sessions:[{id:'done',title:'Old',status:'PUBLISHED',starts_at:'2026-10-27T01:00:00Z'}]}];
+check('null empty',()=>assert.deepEqual(summarizeMySps(null,now).active,[]));
+check('empty upcoming',()=>assert.equal(summarizeMySps([],now).nextSession,null));
+check('one active',()=>assert.equal(summarizeMySps(data,now).active.length,1));
+check('history separate',()=>assert.equal(summarizeMySps(data,now).history.length,1));
+check('earliest first',()=>assert.equal(summarizeMySps(data,now).nextSession.id,'early'));
+check('draft hidden',()=>assert.ok(!summarizeMySps(data,now).upcoming.some(x=>x.id==='draft')));
+check('past hidden',()=>assert.ok(!summarizeMySps(data,now).upcoming.some(x=>x.id==='past')));
+check('completed not next',()=>assert.ok(!summarizeMySps(data,now).upcoming.some(x=>x.id==='done')));
+check('deterministic sort',()=>assert.deepEqual(summarizeMySps(data,now).upcoming.map(x=>x.id),['early','late']));
+check('malformed enrollment dropped',()=>assert.equal(summarizeMySps([...data,null,{},'bad'],now).history.length,1));
+check('missing sessions safe',()=>assert.equal(summarizeMySps([{id:'x',batch_title:'X',status:'ACTIVE'}],now).nextSession,null));
+check('invalid date ignored',()=>assert.equal(summarizeMySps([{id:'x',batch_title:'X',status:'ACTIVE',sessions:[{id:'bad',title:'bad',status:'PUBLISHED',starts_at:'invalid'}]}],now).nextSession,null));
+check('no actor id exposed',()=>assert.ok(!('personId' in summarizeMySps(data,now))));
+check('does not mutate source',()=>{const s=JSON.stringify(data);summarizeMySps(data,now);assert.equal(JSON.stringify(data),s)});
+console.log(`${n}/${n} My SPS view-model PASS`);

@@ -3,7 +3,7 @@ export type MatchStatus = 'READY_FOR_REVIEW'|'UNMATCHED'|'AMBIGUOUS'|'DUPLICATE'
 export type RosterCandidate={personId:string;meetingId:string;externalId:string;activeEnrollment:boolean};
 export type Decision={status:MatchStatus;personId?:string;fingerprint:string;reason:string;attendanceMutated:false};
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-/** Human review mandatory. Never persist canonical attendance here. */
+/** Human review is mandatory. Never persist canonical attendance here. */
 export function reconcileZoomEvidence(evidence:ZoomEvidence,roster:readonly RosterCandidate[],knownFingerprints:ReadonlySet<string>):Decision {
  const fp=evidence?.fingerprint??'';
  const result=(status:MatchStatus,reason:string,personId?:string):Decision=>({status,reason,...(personId?{personId}:{}),fingerprint:fp,attendanceMutated:false});

@@ -1,0 +1,144 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "SPS Platform Identity and My SPS API (DRAFT, unapproved)",
+    "version": "0.1.0-cp052"
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "description": "Process health (not database readiness)"
+          }
+        }
+      }
+    },
+    "/v1/me/profile": {
+      "get": {
+        "operationId": "getOwnProfile",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Own active role"
+          },
+          "401": {
+            "description": "Session invalid"
+          },
+          "403": {
+            "description": "Access denied"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    },
+    "/v1/me/enrollments": {
+      "get": {
+        "operationId": "getOwnEnrollments",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Own enrollments"
+          },
+          "401": {
+            "description": "Session invalid"
+          },
+          "403": {
+            "description": "Access denied"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    },
+    "/v1/me/active-role": {
+      "post": {
+        "operationId": "changeOwnActiveRole",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "x-correlation-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "role"
+                ],
+                "properties": {
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "PARTICIPANT",
+                      "FACILITATOR",
+                      "PTM_COORDINATOR",
+                      "ADMIN",
+                      "DIRECTOR"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Role changed or already active (NestJS Post default)"
+          },
+          "401": {
+            "description": "Session invalid"
+          },
+          "403": {
+            "description": "Unassigned role or invalid payload"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Opaque"
+      }
+    }
+  }
+}

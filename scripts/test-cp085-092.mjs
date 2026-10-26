@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+import {parseMySpsResponse} from '../apps/web/app/my-sps/api-contract.ts';
+let count=0;
+function test(name,f){f();count++;console.log('PASS',name)}
+const row={id:'enroll-1',batch_title:'Kelas A',status:'ACTIVE',sessions:[{id:'session-1',title:'Pertemuan',status:'PUBLISHED',starts_at:'2026-11-01T02:00:00Z'}]};
+test('empty is valid',()=>assert.deepEqual(parseMySpsResponse({items:[]}),[]));
+test('valid response',()=>assert.equal(parseMySpsResponse({items:[row]})?.[0].batch_title,'Kelas A'));
+test('null rejected',()=>assert.equal(parseMySpsResponse(null),null));
+test('missing items rejected',()=>assert.equal(parseMySpsResponse({}),null));
+test('object items rejected',()=>assert.equal(parseMySpsResponse({items:{}}),null));
+test('huge dataset rejected',()=>assert.equal(parseMySpsResponse({items:Array(201).fill(row)}),null));
+test('missing enrollment identity rejected',()=>assert.equal(parseMySpsResponse({items:[{...row,id:null}]}),null));
+test('oversized title rejected',()=>assert.equal(parseMySpsResponse({items:[{...row,batch_title:'x'.repeat(251)}]}),null));
+test('unknown status rejected',()=>assert.equal(parseMySpsResponse({items:[{...row,status:'ADMIN'}]}),null));
+test('nested non-array rejected',()=>assert.equal(parseMySpsResponse({items:[{...row,sessions:{}}]}),null));
+test('invalid session rejected',()=>assert.equal(parseMySpsResponse({items:[{...row,sessions:[null]}]}),null));
+test('draft safe for view filtering',()=>assert.equal(parseMySpsResponse({items:[{...row,sessions:[{...row.sessions[0],status:'DRAFT'}]}]})?.[0].sessions?.[0].status,'DRAFT'));
+test('null date accepted for unscheduled',()=>assert.equal(parseMySpsResponse({items:[{...row,sessions:[{...row.sessions[0],starts_at:null}]}]})?.[0].sessions?.[0].starts_at,null));
+test('no remote URL returned',()=>assert.ok(!('url' in (parseMySpsResponse({items:[{...row,url:'https://bad.test'}]})?.[0]??{}))));
+test('no mutation',()=>{const src={items:[row]};const before=JSON.stringify(src);parseMySpsResponse(src);assert.equal(JSON.stringify(src),before)});
+console.log(`${count}/${count} My SPS API contract tests PASS`);

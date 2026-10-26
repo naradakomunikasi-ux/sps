@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {createHmac} from 'node:crypto';
+import {receiveZoomWebhook} from '../apps/api/src/zoom-webhook-http.ts';
+const secret='test-secret-at-least-16-characters',timestamp='1800000000';
+const rawBody=Buffer.from(JSON.stringify({event:'endpoint.url_validation',payload:{plainToken:'token-125'}}));
+const signature='v0='+createHmac('sha256',secret).update(Buffer.concat([Buffer.from(`v0:${timestamp}:`),rawBody])).digest('hex');
+let tested=0;
+function check(v,msg){assert.ok(v,msg);tested++}
+const input={rawBody,signature,timestamp,secret,nowSeconds:Number(timestamp)};
+const response=await receiveZoomWebhook(input);
+check(response.status===200,'provider URL validation works with no DB pool');
+check(response.body.plainToken==='token-125','provider challenge preserves token');
+check(response.body.encryptedToken===createHmac('sha256',secret).update('token-125').digest('hex'),'challenge hashes with secret');
+const broken=await receiveZoomWebhook({...input,signature:'v0='+('f'.repeat(64))});
+check(broken.status===503,'invalid challenge and absent DB returns sanitized unavailable');
+check(broken.body.outcome==='unavailable','provider receives no database details');
+const main=fs.readFileSync(new URL('../apps/api/src/main.ts',import.meta.url),'utf8');
+check(main.includes('pool: pool ?? undefined'),'route permits challenge without DB');
+check(!main.includes('if (!pool || !process.env.ZOOM_WEBHOOK_SECRET)'),'route does not depend on database for challenge');
+const contract=fs.readFileSync(new URL('../apps/api/src/zoom-webhook-http.ts',import.meta.url),'utf8');
+check(contract.includes('if (!input.pool) return {status:503'),'normal events still require persistent database');
+console.log(`CP125-132 ${tested}/${tested} PASS`);

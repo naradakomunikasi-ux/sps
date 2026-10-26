@@ -1,0 +1,16 @@
+import { existsSync,readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { join } from 'node:path';
+const root=process.cwd(); const checks=[];
+const check=(name,passed,note='')=>checks.push({name,status:passed?'PASS':'FAIL',note});
+const major=Number(process.versions.node.split('.')[0]);check('Node 22 supported',major===22,process.version);
+const npm=execFileSync('npm',['--version'],{encoding:'utf8'}).trim();check('npm >=10',Number(npm.split('.')[0])>=10,npm);
+for(const p of ['package.json','.env.example','apps/api/package.json','apps/web/package.json','db/migrations/001_initial.sql'])check('exists: '+p,existsSync(join(root,p)));
+const env=readFileSync(join(root,'.env.example'),'utf8');for(const key of ['DATABASE_URL','SPS_INTERNAL_API_URL','PORT'])check('env template: '+key,new RegExp(`^${key}=`, 'm').test(env));
+check('legacy HMAC secret not in primary env template',!/^(SPS_SESSION_HMAC_SECRET)=/m.test(env));
+check('package lock available',existsSync(join(root,'package-lock.json')),'required for reproducible npm ci');
+check('installed NestJS',existsSync(join(root,'node_modules/@nestjs/core/package.json')));
+check('installed Next.js',existsSync(join(root,'node_modules/next/package.json')));
+for(const c of checks)console.log(c.status,c.name,c.note);
+console.log(JSON.stringify({pass:checks.filter(x=>x.status==='PASS').length,total:checks.length,checks},null,2));
+process.exitCode=checks.some(x=>x.status==='FAIL')?1:0;

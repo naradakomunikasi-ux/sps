@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import {createHmac} from 'node:crypto';
+import {recordVerifiedZoomWebhook,WebhookReceiptRejected} from '../apps/api/src/zoom-webhook-receipt.ts';
+const secret='long-test-secret-for-Zoom-2026';const now=1792990000;const timestamp=String(now);
+const rawBody=Buffer.from(JSON.stringify({event:'meeting.participant_joined',event_ts:now*1000,payload:{object:{id:'123'}}}));
+const signature='v0='+createHmac('sha256',secret).update(Buffer.concat([Buffer.from(`v0:${timestamp}:`),rawBody])).digest('hex');
+let n=0;const check=(actual,expected,label)=>{assert.deepEqual(actual,expected,label);n++};
+const calls=[];let duplicate=false,fail=false,released=0;
+const pool={connect:async()=>({release(){released++},async query(sql,values){calls.push({sql,values});if(fail&&sql.startsWith('INSERT'))throw new Error('db unavailable');if(sql.startsWith('INSERT'))return {rows:duplicate?[]:[{event_id:values[0]}]};return {rows:[]}}})};
+const input={rawBody,signature,timestamp,secret,nowSeconds:now};
+const a=await recordVerifiedZoomWebhook(pool,input);check(a.status,'ACCEPTED','new event');check(a.eventId.length,64,'digest length');check(calls.some(x=>x.sql==='BEGIN'),true,'transaction begin');check(calls.some(x=>x.sql==='COMMIT'),true,'commit');check(calls.find(x=>x.sql.startsWith('INSERT')).values.length,3,'parameterized receipt');check(released,1,'client released');
+duplicate=true;const b=await recordVerifiedZoomWebhook(pool,input);check(b.status,'DUPLICATE','durable replay rejection');check(b.eventId,a.eventId,'same digest');check(released,2,'duplicate releases');
+const before=calls.length;await assert.rejects(recordVerifiedZoomWebhook(pool,{...input,signature:'v0='+ '0'.repeat(64)}),WebhookReceiptRejected);n++;check(calls.length,before,'invalid signature never enters database');
+fail=true;await assert.rejects(recordVerifiedZoomWebhook(pool,input),/db unavailable/);n++;check(calls.some(x=>x.sql==='ROLLBACK'),true,'db error rollback');check(released,3,'db failure releases');
+console.log(`PASS CP061-068 durable receipt contract: ${n}/${n} assertions (mock DB; no PostgreSQL HTTP/provider proof)`);

@@ -1,0 +1,11 @@
+import {readFileSync} from 'node:fs';
+import assert from 'node:assert/strict';
+const s=readFileSync('scripts/progress-audit.py','utf8');
+assert.match(s,/SELECT id,lane,title,weight,status FROM work_item/);
+assert.match(s,/IMPLEMENTED.*TESTED.*VERIFIED/);
+assert.match(s,/verified_weight/);
+assert.match(s,/next_planned/);
+const main=readFileSync('apps/api/src/main.ts','utf8');
+assert.match(main,/resolveSessionContext/);
+assert.doesNotMatch(main,/verifySignedContext/);
+console.log('CP020 progress audit + identity fail-closed source checks: 6 PASS');

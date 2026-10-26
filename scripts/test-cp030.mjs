@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {spawnSync} from 'node:child_process';
+import {readFileSync,readdirSync} from 'node:fs';
+const run=(file,args=[])=>spawnSync(process.execPath,[file,...args],{encoding:'utf8'});
+const plan=run('db/tools/migrate.mjs',['--dry-run']);assert.equal(plan.status,0,plan.stderr);
+const data=JSON.parse(plan.stdout);assert.equal(data.executed,false);const expected=readdirSync('db/migrations').filter(n=>/^\d{3}_[a-z0-9_]+\.sql$/.test(n));assert.ok(expected.length>=8);assert.equal(data.migrations.length,expected.length);assert.equal(new Set(data.migrations.map(x=>x.sha256)).size,expected.length);
+const seed=run('db/tools/seed-development.mjs',['--dry-run']);assert.equal(seed.status,0,seed.stderr);const s=JSON.parse(seed.stdout);assert.equal(s.executed,false);assert.equal(s.queries.length,3);assert.ok(s.queries.every(x=>!x[0].includes('synthetic.student@example.invalid')));
+const denied=run('db/tools/seed-development.mjs');assert.notEqual(denied.status,0);assert.match(denied.stderr,/explicitly|production/);
+const migration=readFileSync('db/tools/migrate.mjs','utf8');assert.match(migration,/ROLLBACK/);assert.match(migration,/pg_advisory_lock/);assert.match(migration,/Migration drift/);
+console.log('PASS 10/10 CP030 migration and development seed checks; PostgreSQL execution NOT RUN');

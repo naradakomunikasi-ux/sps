@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {evaluateTransition} from '../apps/api/src/transition-guard.ts';
+const good={model:'enrollment',from:'APPLIED',to:'REVIEW',actorPersonId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',reason:'Documents reviewed',correlationId:'cp026trace01'};
+let tests=0;
+const eq=(a,b,msg)=>{assert.equal(a,b,msg);tests++};
+eq(evaluateTransition(good).allowed,true,'valid transition');
+eq(evaluateTransition({...good,from:'REVIEW',to:'APPROVED'}).allowed,true,'review approved');
+eq(evaluateTransition({...good,model:'batch',from:'DRAFT',to:'REGISTRATION_OPEN'}).allowed,true,'batch opened');
+for(const [k,v] of [['from','INVALID'],['to','COMPLETED'],['actorPersonId','client'],['reason',''],['reason',' '.repeat(2)],['correlationId','x'],['model','unknown']])eq(evaluateTransition({...good,[k]:v}).allowed,false,`${k} denied`);
+eq(evaluateTransition({...good,from:'COMPLETED',to:'ACTIVE'}).allowed,false,'terminal state');
+eq(evaluateTransition({...good,reason:' '.repeat(501)}).allowed,false,'oversized reason');
+eq(evaluateTransition({...good,reason:'  reviewed  '}).reason,'reviewed','trim reason');
+eq(evaluateTransition({...good,correlationId:'Aa_Bb-1234'}).allowed,true,'correlation format');
+console.log(`CP026 transition guard: ${tests}/${tests} PASS (local domain behavior, NOT HTTP/database execution)`);

@@ -1,0 +1,299 @@
+{
+  "checkpoint": "SPS-CE-CP-021",
+  "source_files": [
+    {
+      "path": "apps/api/nest-cli.json",
+      "sha256": "2673d4b514404f4431da9f1b36f0c676825b5dec94b3278ba43f2d35bc3c58bb",
+      "bytes": 55
+    },
+    {
+      "path": "apps/api/package.json",
+      "sha256": "12442c0249b7b09d9a485676fbeba9ae35a984674fa5126652c6a0d5d05cea55",
+      "bytes": 523
+    },
+    {
+      "path": "apps/api/src/authorization.ts",
+      "sha256": "28fa7dce74e0b216d405b4524b13c26c4a4128bf268ca4d5799a6477eea5eca9",
+      "bytes": 597
+    },
+    {
+      "path": "apps/api/src/domain.ts",
+      "sha256": "d2a987f19fc2c3002cb6f44b8ce3ec2fcde6806b835877946837356512189733",
+      "bytes": 690
+    },
+    {
+      "path": "apps/api/src/main.ts",
+      "sha256": "37610ed9b23d5a309a94edf0f4860cc09dfddb63e7e64f6659ff773e8dce1c7a",
+      "bytes": 2826
+    },
+    {
+      "path": "apps/api/src/my-sps-repository.ts",
+      "sha256": "765a18cfb3b7d5e3341e9dd720425a43eebbade54098bc045428ea1af4db68e1",
+      "bytes": 794
+    },
+    {
+      "path": "apps/api/src/my-sps-service.ts",
+      "sha256": "b0885e060270e4a8d6d7a4c73ecc0f3d60df412e7cd0ad86f6b4211edf5fa83d",
+      "bytes": 871
+    },
+    {
+      "path": "apps/api/src/postgres-repositories.ts",
+      "sha256": "0cb5d7b4e5fbe25f9069263b2c8141681b145688c1175459c01ef37b615bfa52",
+      "bytes": 1475
+    },
+    {
+      "path": "apps/api/src/requests.ts",
+      "sha256": "17bf92195ed4583f7d38182130e14b64f6d8aa2d94e269ec582800b691d0f42f",
+      "bytes": 904
+    },
+    {
+      "path": "apps/api/src/security.ts",
+      "sha256": "64c393b759e01a9c94d322436c35f81ea22d6fb1f2c0a86c33eb0e4330c1998b",
+      "bytes": 955
+    },
+    {
+      "path": "apps/api/src/session-repository.ts",
+      "sha256": "c448f6e2be2a063e2671eef89b0f001492cf0246da435b23298bcd505d3e6db2",
+      "bytes": 670
+    },
+    {
+      "path": "apps/api/src/session-service.ts",
+      "sha256": "66b071926e95861b8fa5d4d79338fcaf3a40d89bf9f8e31cd700d6f1d50e11ee",
+      "bytes": 1753
+    },
+    {
+      "path": "apps/api/src/session.ts",
+      "sha256": "9efbcbdc811a1533e1c13106ce537c6918a85d14ab220a6206623c723187dded",
+      "bytes": 1477
+    },
+    {
+      "path": "apps/api/tsconfig.json",
+      "sha256": "a8c8f51ad34970046ab8f372d841224b82bcb9f092f0fa18c62ccbe04f32b9e8",
+      "bytes": 244
+    },
+    {
+      "path": "apps/web/app/api/my-sps/route.ts",
+      "sha256": "845985cb1e6948dc5c564f2bddc05674ba303b06130e20caf5d9f819abceab65",
+      "bytes": 1354
+    },
+    {
+      "path": "apps/web/app/health/page.tsx",
+      "sha256": "e6eb253847658e95e36b122b68b6babd5d696ba384a294943c4969d0d801e9d9",
+      "bytes": 599
+    },
+    {
+      "path": "apps/web/app/layout.tsx",
+      "sha256": "32f2fc8497939aefd4ed321a4cf1d2654b129a40e34868ec9f842c3aafa467e8",
+      "bytes": 173
+    },
+    {
+      "path": "apps/web/app/my-sps/error.tsx",
+      "sha256": "9d6a9e6dd40d25e222b96d0872afe8c2f65351f3f14b8681cd6ca599735144d1",
+      "bytes": 224
+    },
+    {
+      "path": "apps/web/app/my-sps/loading.tsx",
+      "sha256": "ee57af73ac626532ddfaab415907b2abe4866612a0def7d929dd1e7cd169db88",
+      "bytes": 114
+    },
+    {
+      "path": "apps/web/app/my-sps/not-found.tsx",
+      "sha256": "4634519460245f4ef64ffdac31c4c3458ceaa8423b075cd5725aba04e19ba3cc",
+      "bytes": 128
+    },
+    {
+      "path": "apps/web/app/my-sps/page.tsx",
+      "sha256": "e0aa6e55f2bef44352607ac5d35bbb144398eb76aba9688cbba47d168ed24cc3",
+      "bytes": 1747
+    },
+    {
+      "path": "apps/web/app/my-sps/status.ts",
+      "sha256": "4310c0ee67ba6be14081796075e2af2f223e6c92878cfa4acf0cc982e2e22b42",
+      "bytes": 403
+    },
+    {
+      "path": "apps/web/app/page.tsx",
+      "sha256": "c92ff55093f34f61f3a5358af2cb8721bb89c3d9724f8d07f4513ddecb28bb6e",
+      "bytes": 873
+    },
+    {
+      "path": "apps/web/package.json",
+      "sha256": "e85e3685517876fa15795a875857258ebe71c63a063de2d4097ae96501d2bfe9",
+      "bytes": 418
+    },
+    {
+      "path": "apps/web/tsconfig.json",
+      "sha256": "efdda680c6f70879dc27944e53a20e282e2b29d4536dcaaf3b280de658b53c5e",
+      "bytes": 355
+    },
+    {
+      "path": "db/migrations/001_initial.sql",
+      "sha256": "a0ac8f8bd585170be8c10e03f77bf2935d9af21a71d90157a7becbb0ae7791ff",
+      "bytes": 2622
+    },
+    {
+      "path": "db/migrations/002_workflow_foundation.sql",
+      "sha256": "1581cbc266f9ec8c02ce1ded5f2110234cd5cf2f429efca96cfad24bdd9e2994",
+      "bytes": 1266
+    },
+    {
+      "path": "db/migrations/003_workflow_atomic_contract.sql",
+      "sha256": "a26d34a4be29f8bc8e059d04094b329ed47206cab5cf4c1742120ce00cc81b01",
+      "bytes": 570
+    },
+    {
+      "path": "db/migrations/004_session_store_candidate.sql",
+      "sha256": "7254ba06fb7ad00e3b437c136b3d138852ac696a1323e073fac399cd234b564a",
+      "bytes": 593
+    },
+    {
+      "path": "db/migrations/005_identity_hardening_candidate.sql",
+      "sha256": "c213e256bc5975fc8b1ced5bfbc933fb0ace69622dec1876de0007c13538e157",
+      "bytes": 637
+    },
+    {
+      "path": "db/migrations/006_session_integrity_candidate.sql",
+      "sha256": "ae2876c16cf4eec2df1e26e0ace3651179fcf827b07d0e3441bf51fb423c9bbd",
+      "bytes": 341
+    },
+    {
+      "path": "db/migrations/007_active_role_context_candidate.sql",
+      "sha256": "f257f80f5be42ec0c4e22c4c218143945a08a05438ed1993435452338bc3e0d1",
+      "bytes": 391
+    },
+    {
+      "path": "scripts/check-migrations.mjs",
+      "sha256": "303f0dc70b8dcf9d166df3504e36238e1e5dfb5d7d3d9fb43ecabc37c2b43115",
+      "bytes": 877
+    },
+    {
+      "path": "scripts/doctor.mjs",
+      "sha256": "1f2fb0664dcade4a53cc089dbcc74788dff2aca0d8af8a64981e5a3225a88cb8",
+      "bytes": 1476
+    },
+    {
+      "path": "scripts/legacy-regression/test-cp003-original.mjs",
+      "sha256": "c5bfda909854d8ee776c48ed74ce1256c932e6bfc88f3bb3248c37e112e0fcbe",
+      "bytes": 1842
+    },
+    {
+      "path": "scripts/legacy-regression/test-cp004-original.mjs",
+      "sha256": "8e7e64f50b434cdb40106ef0512c1ecf38315dc5fe9a1d8e2d2edadd47608e9b",
+      "bytes": 1576
+    },
+    {
+      "path": "scripts/legacy-regression/test-cp006-original.mjs",
+      "sha256": "a41faa0123c16dd8906e15370a65546c267ad7929c5d003394ba96885034c949",
+      "bytes": 2881
+    },
+    {
+      "path": "scripts/legacy-regression/test-cp011-cp013-aligned.mjs",
+      "sha256": "598b748c299f9538be2b9bbe11afd323a90e35c72bed2c2e955e628133c5e607",
+      "bytes": 1742
+    },
+    {
+      "path": "scripts/progress-audit.py",
+      "sha256": "f8f16080323c271dbd505088d90ce8d22daf0dc40d71f086ccc12c139b2d9162",
+      "bytes": 1412
+    },
+    {
+      "path": "scripts/test-cp003.mjs",
+      "sha256": "bdd2d9c47603dd94bb6224df1fc809bcbabf76b09c41ab29f73548fe18f07c8a",
+      "bytes": 1888
+    },
+    {
+      "path": "scripts/test-cp004.mjs",
+      "sha256": "e436b810116cfc8e75dafcb1b3e5d73ec16c4b3d140d24edb5f7ce62526f10cc",
+      "bytes": 1668
+    },
+    {
+      "path": "scripts/test-cp005.mjs",
+      "sha256": "35a03b59ca82f488bf0441dc6cba47b6944cd5e0ce56273c928abd8d45fb9ca6",
+      "bytes": 1727
+    },
+    {
+      "path": "scripts/test-cp006.mjs",
+      "sha256": "4d10ccbaf379f4f27750da6106fa691b37bd29c17c71131420fe07d5db58a59c",
+      "bytes": 2910
+    },
+    {
+      "path": "scripts/test-cp007.mjs",
+      "sha256": "1c813e36390d0f49eb5738eb92c3fd6b3f2078d161897f5d91db57d90c2e56a6",
+      "bytes": 2212
+    },
+    {
+      "path": "scripts/test-cp009.mjs",
+      "sha256": "074856ac6bfcb729689ec4d078f582737a2afb3019a120c47dceba8b44d65f5e",
+      "bytes": 1229
+    },
+    {
+      "path": "scripts/test-cp010.mjs",
+      "sha256": "0be7c9e0fb610ba4b7eb3ee3b059e92a986a076ecca22689e6c998064c7f68ad",
+      "bytes": 2178
+    },
+    {
+      "path": "scripts/test-cp011.mjs",
+      "sha256": "598b748c299f9538be2b9bbe11afd323a90e35c72bed2c2e955e628133c5e607",
+      "bytes": 1742
+    },
+    {
+      "path": "scripts/test-cp012.mjs",
+      "sha256": "672cd880b02951373bdedbd94e9ba0d9494f0ad1a0e6ecf4b04abfa7de9903ed",
+      "bytes": 996
+    },
+    {
+      "path": "scripts/test-cp013.mjs",
+      "sha256": "e76456671ef103c0aa190cc6466420a67f9c80a16259e4e71ebd337fd765ebd1",
+      "bytes": 1380
+    },
+    {
+      "path": "scripts/test-cp018.mjs",
+      "sha256": "b03bc120b5a4bc1b94e51f4413f56a7a9efa46496daa50ac8884821ff9db41f4",
+      "bytes": 1532
+    },
+    {
+      "path": "scripts/test-cp019.mjs",
+      "sha256": "d48a896217fe01fb067541018cce741f9777d10b9aa366886eb6754f6afd83ed",
+      "bytes": 980
+    },
+    {
+      "path": "scripts/test-cp020.mjs",
+      "sha256": "83c87b4604140f45d49c805129421e38b3be87a9771406afd9eb1bdef9335e86",
+      "bytes": 553
+    },
+    {
+      "path": "scripts/test-default-deny.mjs",
+      "sha256": "b5d7dc5bafae4909d226394c6cde340bdbf37eceb21cdc3e4828efc02156f282",
+      "bytes": 2214
+    },
+    {
+      "path": "scripts/test-security.mjs",
+      "sha256": "b3750f43079d37ffe034decee99c4d17df242178ab59b856798e9cae637ac554",
+      "bytes": 1297
+    },
+    {
+      "path": "scripts/verify-engineering.mjs",
+      "sha256": "a3067238dbb88d043a70d4947e05912aad0c544070d6eaa108b53a2c7b0eaab2",
+      "bytes": 946
+    },
+    {
+      "path": "scripts/verify-install.mjs",
+      "sha256": "9302e7ab091270845eb8958f792c0a4f4f32245ded2616e2b4b3e63709727306",
+      "bytes": 457
+    },
+    {
+      "path": "scripts/verify-structure.mjs",
+      "sha256": "fa859b3e16ec5af4a916bc552fab030addffe8024632ca735fe5d455bb8d9697",
+      "bytes": 324
+    }
+  ],
+  "canonical_references": {
+    "PRD": "https://docs.google.com/document/d/1UJq4Vltg0v-MnkwbjvHeC7cZm4D3CGe0x8Yd9gQox0I/edit",
+    "TOGAF": "https://docs.google.com/document/d/1XjAVkZq2Ka-v4gJCj6JVhJFcELyWFpYgHdQsh8CugGE/edit",
+    "Workbook": "https://drive.google.com/file/d/1LvWzNW9k4DF3rZFnFhEuCEXLY6kZCOTR/view",
+    "Sitemap_UIUX": "https://docs.google.com/document/d/1LQdkJ4pKiTdEr_-5z28aKhHFlLhF3E-7D11GYBIcuAA/edit",
+    "UIUX_Runnable": "https://drive.google.com/file/d/1quLTGs_Kix-4ARVVBzCwgxyLDfrgyqxc/view"
+  },
+  "verification_scope": "local file SHA256; external canonical file bytes not downloaded",
+  "design_status": "controlled references, not runtime verified"
+}

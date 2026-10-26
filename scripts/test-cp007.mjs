@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import ts from '/opt/nvm/versions/node/v22.16.0/lib/node_modules/typescript/lib/typescript.js';
+import vm from 'node:vm';
+import {createRequire} from 'node:module';
+const require=createRequire(import.meta.url);
+const root='apps/api/src/';
+const transpile=(file,imports={})=>{
+ const src=fs.readFileSync(root+file+'.ts','utf8');
+ const js=ts.transpileModule(src,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
+ const exports={};const context={exports,require:(s)=>imports[s]??require(s)};
+ vm.runInNewContext(js,context,{filename:file});return exports;
+};
+const repoMod=transpile('postgres-repositories');
+const calls=[];const db={query:async(sql,params)=>{calls.push({sql,params}); if(sql.includes('FROM auth_session'))return {rows:[{id:'sess',user_account_id:'acc',person_id:'123e4567-e89b-12d3-a456-426614174000',expires_at:new Date(Date.now()+60000),revoked_at:null}]}; if(sql.includes('FROM role_assignment'))return {rows:[{role_code:'PARTICIPANT',batch_id:null}]};return {rows:[]};}};
+const session=new repoMod.PgSessionRepository(db);
+const live=await session.findActiveSessionByHash('hash',new Date());assert.equal(live.personId,'123e4567-e89b-12d3-a456-426614174000');
+const roles=await session.listEffectiveRoles('acc');assert.equal(roles[0].code,'PARTICIPANT');assert.deepEqual(Array.from(roles[0].batchIds),[]);
+assert.equal(calls.length,2);assert.equal(calls[0].params[0],'hash');assert.equal(calls[1].params[0],'acc');
+const sql=fs.readFileSync('db/migrations/006_session_integrity_candidate.sql','utf8');assert.match(sql,/CREATE INDEX IF NOT EXISTS/);
+const ui=fs.readFileSync('apps/web/app/my-sps/page.tsx','utf8');assert.match(ui,/No SPS enrollment/);assert.match(fs.readFileSync('apps/web/app/my-sps/dashboard.tsx','utf8'),/My enrollments/);assert.match(ui,/Sign-in required/);assert.match(ui,/temporarily unavailable/);
+const service=fs.readFileSync(root+'my-sps-service.ts','utf8');assert.match(service,/resolveSessionContext/);assert.match(service,/canReadOwnEnrollment/);assert.match(service,/loadOwnEnrollments/);
+console.log('CP007 12/12 checks PASS (2 repository calls, 10 static assertions). No NestJS/PostgreSQL runtime tested.');

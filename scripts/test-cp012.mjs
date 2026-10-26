@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+const src=(p)=>readFileSync(new URL(p,import.meta.url),'utf8');
+const resolver=src('../apps/api/src/session-service.ts');
+const repo=src('../apps/api/src/postgres-repositories.ts');
+const migration=src('../db/migrations/007_active_role_context_candidate.sql');
+const proxy=src('../apps/web/app/api/my-sps/route.ts');
+assert.match(resolver,/session\.activeRoleCode/);
+assert.match(resolver,/if \(!chosen\) return null/);
+assert.match(resolver,/matches\.length===0/);
+assert.match(resolver,/matches\.flatMap/);
+assert.match(repo,/s\.active_role_code/);
+assert.match(repo,/WHERE user_account_id=\$1 AND enabled=TRUE/);
+assert.match(migration,/ADD COLUMN IF NOT EXISTS active_role_code/);
+assert.match(proxy,/cookies\(\)/);
+assert.match(proxy,/cache:'no-store'/);
+assert.doesNotMatch(proxy,/req\.headers\.get\(['"]host/);
+console.log('CP012: 10/10 source and authorization contract checks PASS (no database runtime)');

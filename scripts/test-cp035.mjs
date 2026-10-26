@@ -1,0 +1,28 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {storeZoomEvidence,submitZoomReview,ReviewConflict} from '../apps/api/src/zoom-evidence-inbox.ts';
+const a='11111111-1111-4111-8111-111111111111',b='22222222-2222-4222-8222-222222222222',f='a'.repeat(64);
+let tests=0,queries=[];
+const e={provider:'ZOOM',status:'PENDING_RECONCILIATION',fingerprint:f,sourceEventId:'event1',meetingId:'meeting1',participantExternalId:'participant1',receivedAt:'2026-10-22T00:00:00Z'};
+const db={query:async(sql,params)=>{queries.push([sql,params]);return {rows:sql.includes('RETURNING id')?[{id:a}]:[]}}};
+assert.equal(await storeZoomEvidence(db,a,e),'INSERTED');tests++;
+assert.equal(queries.length,1);assert.equal(queries[0][1][4],f);tests++;
+assert.equal(await storeZoomEvidence({query:async()=>({rows:[]})},a,e),'DUPLICATE');tests++;
+await assert.rejects(storeZoomEvidence(db,'bad',e),ReviewConflict);tests++;
+let history=[],releases=0,shouldFail=false,authorized=true;
+const pool={connect:async()=>({query:async(sql,params)=>{history.push(sql);if(shouldFail&&sql.startsWith('INSERT INTO audit_event'))throw Error('audit failed');return {rows:sql.includes('FROM person p')?(authorized?[{id:b}]:[]):sql.startsWith('SELECT')?[{id:a,state:'READY_FOR_REVIEW',fingerprint:f,candidate_person_id:a}]:[]}},release:()=>{releases++}})};
+const input={evidenceId:a,reviewerId:b,decision:'APPROVED',reason:'Reviewed against enrollment',candidate:{status:'READY_FOR_REVIEW',fingerprint:f,personId:a,attendanceMutated:false},correlationId:'test-cp035'};
+assert.deepEqual(await submitZoomReview(pool,input),{decision:'APPROVED',attendanceMutated:false});tests++;
+assert.deepEqual(history.slice(0,2),['BEGIN',history[1]]);tests++;
+assert.equal(history.at(-1),'COMMIT');assert.equal(releases,1);tests++;
+await assert.rejects(submitZoomReview(pool,{...input,reason:''}),ReviewConflict);tests++;
+await assert.rejects(submitZoomReview(pool,{...input,candidate:{...input.candidate,status:'UNMATCHED'}}),ReviewConflict);tests++;
+await assert.rejects(submitZoomReview(pool,{...input,candidate:{...input.candidate,attendanceMutated:true}}),ReviewConflict);tests++;
+shouldFail=true;await assert.rejects(submitZoomReview(pool,input),/audit failed/);assert.equal(history.at(-1),'ROLLBACK');tests++;
+assert.equal(releases,2);tests++;
+authorized=false;shouldFail=false;await assert.rejects(submitZoomReview(pool,input),/Reviewer lacks active admin assignment/);assert.equal(history.at(-1),'ROLLBACK');tests++;
+authorized=true;
+const sql=readFileSync(new URL('../db/migrations/010_zoom_evidence_inbox_candidate.sql',import.meta.url),'utf8');
+for(const p of ['BEGIN;','COMMIT;','fingerprint char(64) NOT NULL UNIQUE','reviewed_by uuid REFERENCES person(id)','CREATE UNIQUE INDEX']){assert.ok(sql.includes(p));tests++}
+assert.ok(!sql.includes('UPDATE attendance'));tests++;
+console.log(`PASS ${tests}/${tests} CP035 evidence inbox / human review contract tests; mocked transactions only`);

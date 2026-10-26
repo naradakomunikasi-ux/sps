@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {loadOwnEnrollments} from '../apps/api/src/my-sps-repository.ts';
+import {resolvePortalState} from '../apps/web/app/my-sps/status.ts';
+const person='11111111-1111-4111-8111-111111111111',batch='22222222-2222-4222-8222-222222222222';
+let calls=[];
+const db={async query(sql,params){calls.push({sql,params});if(calls.length===1)return {rows:[{id:'enr',batch_id:batch,batch_title:'SPS 1',status:'ACTIVE'}]};return {rows:[{id:'ses',batch_id:batch,title:'Lesson',starts_at:'2026-11-01T10:00:00Z',status:'PUBLISHED'},{id:'leak',batch_id:'33333333-3333-4333-8333-333333333333',title:'Other',starts_at:'2026-11-01T10:00:00Z',status:'PUBLISHED'}]};}};
+assert.rejects(loadOwnEnrollments(db,'injection'));
+const rows=await loadOwnEnrollments(db,person);assert.equal(rows.length,1);assert.equal(rows[0].sessions.length,1);assert.equal(rows[0].sessions[0].id,'ses');assert.deepEqual(calls[0].params,[person]);assert.deepEqual(calls[1].params,[[batch]]);assert.match(calls[1].sql,/PUBLISHED/);
+for(const [status,exists,expected] of [[null,false,'SIGN_IN_REQUIRED'],[401,false,'SIGN_IN_REQUIRED'],[403,true,'FORBIDDEN'],[200,false,'EMPTY'],[200,true,'READY'],[500,true,'ERROR']])assert.equal(resolvePortalState(status,exists),expected);
+console.log('CP027 PASS: scoped SQL, cross-batch filtering, six portal states');

@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {createHmac} from 'node:crypto';
+import {receiveZoomWebhook} from '../apps/api/src/zoom-webhook-http.ts';
+let count=0;const check=(v)=>{assert.ok(v);count++};
+const secret='a'.repeat(32), timestamp='1793000000', nowSeconds=1793000000;
+const rawBody=Buffer.from(JSON.stringify({event:'meeting.participant_joined',event_ts:1793000000000,payload:{object:{id:123}}}));
+const signature='v0='+createHmac('sha256',secret).update(Buffer.concat([Buffer.from(`v0:${timestamp}:`),rawBody])).digest('hex');
+let mode='insert',queries=[],releases=0,connections=0;
+const pool={async connect(){connections++;return {async query(sql){queries.push(sql);if(mode==='error'&&sql.startsWith('INSERT'))throw Error('db secret leaked');return {rows:sql.startsWith('INSERT')&&(mode==='duplicate')?[]:[{event_id:'id'}]};},release(){releases++}}}};
+let r=await receiveZoomWebhook({pool,rawBody,signature,timestamp,secret,nowSeconds});
+check(r.status===200);check(r.body.outcome==='accepted');check(queries.some(q=>q==='COMMIT'));check(releases===1);
+mode='duplicate';r=await receiveZoomWebhook({pool,rawBody,signature,timestamp,secret,nowSeconds});check(r.body.outcome==='duplicate');check(releases===2);
+let n=connections;r=await receiveZoomWebhook({pool,rawBody:JSON.parse(rawBody.toString()),signature,timestamp,secret,nowSeconds});check(r.status===400);check(n===connections);
+n=connections;r=await receiveZoomWebhook({pool,rawBody,signature:'v0='+'0'.repeat(64),timestamp,secret,nowSeconds});check(r.status===401);check(r.body.outcome==='rejected');check(n===connections);
+mode='error';queries=[];r=await receiveZoomWebhook({pool,rawBody,signature,timestamp,secret,nowSeconds});check(r.status===503);check(r.body.outcome==='unavailable');check(queries.includes('ROLLBACK'));check(releases===3);check(!JSON.stringify(r).includes('secret'));
+r=await receiveZoomWebhook({pool,rawBody,signature,timestamp:String(nowSeconds-301),secret,nowSeconds});check(r.status===401);
+console.log(`PASS: ${count}/${count} CP069–076 Zoom webhook HTTP adapter assertions (mock pool; no HTTP server)`);
